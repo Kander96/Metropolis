@@ -10,6 +10,7 @@
 float metropolis(float x_0, float x_1);
 float gaussiana(float x_0, float x_1);
 float dist_gauss(float x_0, float paso);
+int flipear_spin(int *red, int dim, int s);
 
 int main(int argc, char *argv[]){
 
@@ -38,10 +39,16 @@ int main(int argc, char *argv[]){
 		
 		FILE *file;
 		float B=-100.0;
-		float T=6000.0,p;
+		float T,p;
 		int dim=32,s;
+		
+		sscanf(argv[2],"%f",&T);
+		
 		float beta=1.0/T;
 		int m=0;
+		char filename[64];
+		
+		sprintf(filename, "ejercicio_2_a_T_%.1f.txt",T);
 		
 		int *red;
 		red = (int*)malloc(dim*dim*sizeof(int));
@@ -49,12 +56,12 @@ int main(int argc, char *argv[]){
 		//for(int i=0; i<dim*dim; i++)
 		//	*(red+i)=1;
 		
-		file=fopen("Ejercicio_2_a.txt","w");
+		file=fopen(filename,"w");
 		for(int j=0; j<1000; j++){
-			m+=dim*dim;
+			m=dim*dim;
+			for(int i=0; i<dim*dim; i++)
+				*(red+i)=1;
 			for(int i=0; i<10000; i++){
-				for(int i=0; i<dim*dim; i++)
-					*(red+i)=1;
 				
 				s=rand()%(dim*dim);	
 				p=powl(E,-2*beta*B*(*(red+s)));
@@ -77,16 +84,45 @@ int main(int argc, char *argv[]){
 	
 	if(item==3){
 		srand(time(NULL));
-		int dim=32;
-		
+		FILE *file;
+		int dim=32,a,m,s;
+		float J=0.1;
+		float T=100.0;
+		float beta=1.0/T;
+		char filename[64];
+			
 		int *red;
 		red = (int*)malloc(dim*dim*sizeof(int));
+
+		float *p;
+		p = (float*)malloc(dim*dim*sizeof(float));
+		for(int i=0; i<5; i++)
+			*(p+i)=powl(E,-beta*J*4*(i-2));
+		
+		sprintf(filename, "ejercicio_2_b.txt");
+		file=fopen(filename,"w");
 		
 		for(int i=0; i<dim*dim; i++)
 			*(red+i)=1;
+		m=dim*dim;
 		
 		
-	
+		for(int i=0; i<10000000; i++){
+			
+			s=rand()%(dim*dim);
+			a=flipear_spin(red,dim,s);
+			if(rand()*1.0/M<*(p+a)){
+				*(red+s)=-*(red+s);
+				m+=*(red+s)*2;
+			}
+			fprintf(file,"%.3f\n",m*1.0/(dim*dim));
+		}
+		
+		
+		
+		
+		free(red);
+		free(p);
 	}
 	
 	if(item==100){
@@ -120,10 +156,12 @@ float dist_gauss(float x_0, float paso){
 	return x_0;
 }
 
-/*int flipear_spin(int *red, int dim){
+int flipear_spin(int *red, int dim, int a){
 	
 	int s_u,s_d,s_l,s_r;
-	int a=rand()%(dim*dim);
+	
+	int b;
+	
 	
 	if(a/dim==0)
 		s_u=*(red+a+dim*dim-dim);
@@ -144,6 +182,13 @@ float dist_gauss(float x_0, float paso){
 		s_r=*(red+a+1-dim);
 	else
 		s_r=*(red+a+1);
-		
-	return 0;		
-}*/
+	
+	b=*(red+a)*(s_u+s_d+s_l+s_r);
+	b=b/2+2;
+	
+	
+	
+	
+	
+	return b;		
+}
