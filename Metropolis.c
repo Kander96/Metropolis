@@ -57,11 +57,12 @@ int main(int argc, char *argv[]){
 		//	*(red+i)=1;
 		
 		file=fopen(filename,"w");
-		for(int j=0; j<1000; j++){
+		//for(int j=0; j<1000; j++){
 			m=dim*dim;
 			for(int i=0; i<dim*dim; i++)
 				*(red+i)=1;
-			for(int i=0; i<10000; i++){
+				//*(red+i)=(rand()%2)*2-1;
+			for(int i=0; i<100*dim*dim; i++){
 				
 				s=rand()%(dim*dim);	
 				p=powl(E,-2*beta*B*(*(red+s)));
@@ -71,11 +72,12 @@ int main(int argc, char *argv[]){
 					m+=*(red+s)*2;
 					}
 				
-				fprintf(file,"%.4f\t", m*1.0/(dim*dim));
+				if(i%(dim*dim)==0)
+					fprintf(file,"%.4f\n", m*1.0/(dim*dim));
 				//fprintf(file,"%.4f\n", p);
-			}
+			//}
 			
-			fprintf(file,"\n");
+			//fprintf(file,"\n");
 			
 		}	
 		fclose(file);
@@ -104,10 +106,10 @@ int main(int argc, char *argv[]){
 		
 		for(int i=0; i<dim*dim; i++)
 			*(red+i)=1;
+			//*(red+i)=(rand()%2)*2-1;
 		m=dim*dim;
 		
-		
-		for(int i=0; i<10000000; i++){
+		for(int i=0; i<5000; i++){
 			
 			s=rand()%(dim*dim);
 			a=flipear_spin(red,dim,s);
@@ -115,6 +117,18 @@ int main(int argc, char *argv[]){
 				*(red+s)=-*(red+s);
 				m+=*(red+s)*2;
 			}
+		}
+		
+		
+		for(int i=0; i<1000*dim*dim; i++){
+			
+			s=rand()%(dim*dim);
+			a=flipear_spin(red,dim,s);
+			if(rand()*1.0/M<*(p+a)){
+				*(red+s)=-*(red+s);
+				m+=*(red+s)*2;
+			}
+			if(i%(dim*dim)==0)
 			fprintf(file,"%.3f\n",m*1.0/(dim*dim));
 		}
 		
