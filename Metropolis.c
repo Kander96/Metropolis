@@ -118,9 +118,6 @@ int main(int argc, char *argv[]){
 			fprintf(file,"%.3f\n",m*1.0/(dim*dim));
 		}
 		
-		
-		
-		
 		free(red);
 		free(p);
 	}
@@ -159,10 +156,16 @@ float dist_gauss(float x_0, float paso){
 int flipear_spin(int *red, int dim, int a){
 	
 	int s_u,s_d,s_l,s_r;
-	
 	int b;
-	
-	
+	int i=a/dim;
+	int j=a%dim;
+
+	s_d=*(red+((i+1+dim)%dim)*dim+j);
+	s_u=*(red+((i-1+dim)%dim)*dim+j);
+	s_r=*(red+i*dim+(j+1+dim)%dim);
+	s_l=*(red+i*dim+(j-1+dim)%dim);
+
+/*	
 	if(a/dim==0)
 		s_u=*(red+a+dim*dim-dim);
 	else
@@ -182,13 +185,9 @@ int flipear_spin(int *red, int dim, int a){
 		s_r=*(red+a+1-dim);
 	else
 		s_r=*(red+a+1);
-	
+*/	
 	b=*(red+a)*(s_u+s_d+s_l+s_r);
 	b=b/2+2;
-	
-	
-	
-	
 	
 	return b;		
 }
