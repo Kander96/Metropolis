@@ -18,7 +18,7 @@ def algo(datos,k,L):
     return suma/(L-k)
 
 
-datos=np.loadtxt('ejercicio_2_b.txt')
+datos=np.loadtxt('correlacion_2_b.txt')
 
 x=np.linspace(1,len(datos),len(datos))
 
@@ -43,3 +43,18 @@ plt.ylabel('Correlación')
 plt.xlabel('Distancia de correlación')
 plt.savefig('Correlacion_2_b.pdf')
 plt.show()
+#%%
+
+datos=np.loadtxt('ejercicio_2_b.txt')
+
+N=len(datos)
+M=np.zeros(N)
+for i in range(N):
+    M[i]=np.mean(abs(datos[i,1:]))
+
+x=np.linspace(0,3,100)
+y=(1-(np.sinh(2/x))**(-4))**(1/8)
+
+plt.plot(1/datos[:,0],M,'.')
+plt.plot(x,y,'r')
+plt.grid()

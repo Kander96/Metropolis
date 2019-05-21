@@ -10,7 +10,11 @@
 float metropolis(float x_0, float x_1);
 float gaussiana(float x_0, float x_1);
 float dist_gauss(float x_0, float paso);
+float medir_a(int *red, int dim, float B_T, FILE *file, float m, int l);
 int flipear_spin(int *red, int dim, int s);
+float medir_b(int *red, int dim, float J_T, FILE *file, float m, int l);
+int print_file(FILE *file);
+int variar_dimension(int dim);
 
 int main(int argc, char *argv[]){
 
@@ -38,17 +42,17 @@ int main(int argc, char *argv[]){
 		srand(time(NULL));
 		
 		FILE *file;
-		float B=-100.0;
-		float T,p;
-		int dim=32,s;
+		float B_T=-2.0; //esto es B*=B/T
+		int dim=32;
+		int l=1000;
 		
-		sscanf(argv[2],"%f",&T);
+		//sscanf(argv[2],"%f",&T);
 		
-		float beta=1.0/T;
+		//float beta=1.0/T;
 		int m=0;
 		char filename[64];
 		
-		sprintf(filename, "ejercicio_2_a_T_%.1f.txt",T);
+		sprintf(filename, "ejercicio_2_a.txt");
 		
 		int *red;
 		red = (int*)malloc(dim*dim*sizeof(int));
@@ -58,28 +62,31 @@ int main(int argc, char *argv[]){
 		
 		file=fopen(filename,"w");
 		//for(int j=0; j<1000; j++){
-			m=dim*dim;
-			for(int i=0; i<dim*dim; i++)
-				*(red+i)=1;
-				//*(red+i)=(rand()%2)*2-1;
-			for(int i=0; i<100*dim*dim; i++){
-				
-				s=rand()%(dim*dim);	
-				p=powl(E,-2*beta*B*(*(red+s)));
-
-				if(rand()*1.0/M<p){
-					*(red+s)=-*(red+s);
-					m+=*(red+s)*2;
-					}
-				
-				if(i%(dim*dim)==0)
-					fprintf(file,"%.4f\n", m*1.0/(dim*dim));
-				//fprintf(file,"%.4f\n", p);
-			//}
+		m=dim*dim;
+		for(int i=0; i<dim*dim; i++)
+			*(red+i)=1;
+			//*(red+i)=(rand()%2)*2-1;
+		
+		
+		for(B_T=-4; B_T<-2; B_T+=0.5)
+		m=medir_a(red,dim,B_T,file,m,l);
+		
+		for(B_T=-2; B_T<-1; B_T+=0.25)
+		m=medir_a(red,dim,B_T,file,m,l);
+		
+		for(B_T=-1; B_T<1; B_T+=0.1)
+		m=medir_a(red,dim,B_T,file,m,l);
+		
+		for(B_T=1; B_T<2; B_T+=0.25)
+		m=medir_a(red,dim,B_T,file,m,l);
+		
+		for(B_T=2; B_T<=4; B_T+=0.5)
+		m=medir_a(red,dim,B_T,file,m,l);
+		//for(B_T=-4; B_T<-0.05; B_T=B_T/2)
+		//m=medir_a(red,dim,B_T,file,m,l);
+		
 			
-			//fprintf(file,"\n");
-			
-		}	
+	
 		fclose(file);
 		free(red);
 	}
@@ -87,57 +94,54 @@ int main(int argc, char *argv[]){
 	if(item==3){
 		srand(time(NULL));
 		FILE *file;
-		int dim=32,a,m,s;
-		float J=0.1;
-		float T=100.0;
-		float beta=1.0/T;
-		char filename[64];
+		int dim=32,m;
 			
 		int *red;
 		red = (int*)malloc(dim*dim*sizeof(int));
-
-		float *p;
-		p = (float*)malloc(dim*dim*sizeof(float));
-		for(int i=0; i<5; i++)
-			*(p+i)=powl(E,-beta*J*4*(i-2));
 		
-		sprintf(filename, "ejercicio_2_b.txt");
-		file=fopen(filename,"w");
+		file=fopen("ejercicio_2_b.txt","w");
 		
 		for(int i=0; i<dim*dim; i++)
 			*(red+i)=1;
 			//*(red+i)=(rand()%2)*2-1;
 		m=dim*dim;
 		
-		for(int i=0; i<5000; i++){
-			
-			s=rand()%(dim*dim);
-			a=flipear_spin(red,dim,s);
-			if(rand()*1.0/M<*(p+a)){
-				*(red+s)=-*(red+s);
-				m+=*(red+s)*2;
-			}
-		}
+		//m=medir_b(red,dim,0.1,file,m,l);				
+				
+		for(float i=0.1; i<2.0; i+=0.1)
+			m=medir_b(red,dim,1.0/i,file,m,1000);		
 		
+		for(float i=2.0; i<2.8; i+=0.01)
+			m=medir_b(red,dim,1.0/i,file,m,1000);
 		
-		for(int i=0; i<1000*dim*dim; i++){
-			
-			s=rand()%(dim*dim);
-			a=flipear_spin(red,dim,s);
-			if(rand()*1.0/M<*(p+a)){
-				*(red+s)=-*(red+s);
-				m+=*(red+s)*2;
-			}
-			if(i%(dim*dim)==0)
-			fprintf(file,"%.3f\n",m*1.0/(dim*dim));
-		}
+		for(float i=2.8; i<4.0; i+=0.05)
+			m=medir_b(red,dim,1.0/i,file,m,1000);
 		
+		for(float i=4.0; i<=6.0; i+=0.1)
+			m=medir_b(red,dim,1.0/i,file,m,1000);
+		
+		fclose(file);		
 		free(red);
-		free(p);
+		
 	}
 	
+	if(item==4){
+		srand(time(NULL));
+		int dim;
+		
+		for(dim=4; dim<=64; dim+=dim)
+			variar_dimension(dim);
+		
+		
+	}
+	
+	
 	if(item==100){
-		printf("%i\n",563%100);
+		FILE *file;
+		file=fopen("Hello World","w");
+		for(float i=2.0; i>0.01; i=i/2.0)
+			print_file(file);
+		fclose(file);
 	
 	
 	}
@@ -166,6 +170,42 @@ float dist_gauss(float x_0, float paso){
 	
 	return x_0;
 }
+
+float medir_a(int *red, int dim, float B_T, FILE *file, float m, int l){
+	
+	int s;
+	float p;
+	
+	fprintf(file,"%.3f\t",B_T);
+	for(int i=0; i<5000; i++){
+		s=rand()%(dim*dim);	
+		p=powl(E,-2*B_T*(*(red+s)));
+
+		if(rand()*1.0/M<p){
+			*(red+s)=-*(red+s);
+			m+=*(red+s)*2;
+			}			
+	}
+
+	for(int i=0; i<l*dim*dim; i++){
+	
+		s=rand()%(dim*dim);	
+		p=powl(E,-2*B_T*(*(red+s)));
+
+		if(rand()*1.0/M<p){
+			*(red+s)=-*(red+s);
+			m+=*(red+s)*2;
+			}
+	
+		if(i%(dim*dim)==0)
+			fprintf(file,"%.4f\t", m*1.0/(dim*dim));
+	
+	}
+	fprintf(file,"\n");
+	
+	return m;
+}
+
 
 int flipear_spin(int *red, int dim, int a){
 	
@@ -204,4 +244,90 @@ int flipear_spin(int *red, int dim, int a){
 	b=b/2+2;
 	
 	return b;		
+}
+
+int print_file(FILE *file){
+	fprintf(file,"Hello World!\n");
+
+	return 0;
+}
+
+float medir_b(int *red, int dim, float J_T, FILE *file, float m, int l){
+	
+	int s,a;
+	
+	float *p;
+	p = (float*)malloc(dim*dim*sizeof(float));
+	for(int i=0; i<5; i++)
+		*(p+i)=powl(E,-J_T*4*(i-2));		
+	
+	fprintf(file,"%f\t",J_T);
+	
+	for(int i=0; i<5000; i++){
+		
+		s=rand()%(dim*dim);
+		a=flipear_spin(red,dim,s);
+		if(rand()*1.0/M<*(p+a)){
+			*(red+s)=-*(red+s);
+			m+=*(red+s)*2;
+		}
+	}
+	
+	for(int j=0; j<l; j++){
+	
+		fprintf(file,"%.3f\t",m*1.0/(dim*dim));
+	
+		for(int i=0; i<dim*dim; i++){
+		
+			s=rand()%(dim*dim);
+			a=flipear_spin(red,dim,s);
+			if(rand()*1.0/M<*(p+a)){
+				*(red+s)=-*(red+s);
+				m+=*(red+s)*2;
+			}
+			//if(i%(dim*dim)==0)
+			//fprintf(file,"%.3f\n",m*1.0/(dim*dim));
+		}
+	}
+	fprintf(file,"\n");
+	
+	free(p);
+	
+	return m;
+}
+
+int variar_dimension(int dim){
+
+	FILE *file;
+	int m;
+	int *red;
+	red = (int*)malloc(dim*dim*sizeof(int));
+	
+	char filename[64];
+	sprintf(filename, "ejercicio_2_c_dim_%i.txt",dim);
+	file=fopen(filename,"w");
+	
+	for(int i=0; i<dim*dim; i++)
+		*(red+i)=1;
+		//*(red+i)=(rand()%2)*2-1;
+	m=dim*dim;
+	
+	//m=medir_b(red,dim,0.1,file,m,l);				
+			
+	for(float i=0.1; i<2.0; i+=0.1)
+		m=medir_b(red,dim,1.0/i,file,m,1000);		
+	
+	for(float i=2.0; i<2.8; i+=0.01)
+		m=medir_b(red,dim,1.0/i,file,m,1000);
+	
+	for(float i=2.8; i<4.0; i+=0.05)
+		m=medir_b(red,dim,1.0/i,file,m,1000);
+	
+	for(float i=4.0; i<=10.0; i+=0.1)
+		m=medir_b(red,dim,1.0/i,file,m,1000);
+	
+	fclose(file);		
+	free(red);
+	
+	return 0;
 }
