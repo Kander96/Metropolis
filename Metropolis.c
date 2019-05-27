@@ -15,6 +15,14 @@ int flipear_spin(int *red, int dim, int s);
 float medir_b(int *red, int dim, float J_T, FILE *file, float m, int l);
 int print_file(FILE *file);
 int variar_dimension(int dim);
+int flippear_spin_antiferro(int *red, int dim, int a, float B_T);
+int definir_valores_de_p(float *p, float B, float J);
+float termalizacion_antiferro(int *red, float *p, int dim, float B_T, float J_T, FILE *file, float m, int l);
+float medir_d(int *red, float *p, int dim, float B_T, float J_T, FILE *file, float m, int l);
+int flippear_spin_frustacion(int *red, int dim, int a, float B);
+int definir_valores_de_p_2(float *p, float B, float J);
+float medir_e(int *red, float *p, int dim, float B_T, float J_T, FILE *file, float m, int l);
+
 
 int main(int argc, char *argv[]){
 
@@ -135,14 +143,157 @@ int main(int argc, char *argv[]){
 		
 	}
 	
+	if(item==5){
+		srand(time(NULL));
+		FILE *file;
+		int dim=32,m;
+		float J_T,B_T;
+		char filename[64];
+		
+		sprintf(filename,"ejercicio_2_d.txt");
+		file=fopen(filename,"w");
+		
+		int *red;
+		float *p;
+		red = (int*)malloc(dim*dim*sizeof(int));
+		p = (float*)malloc(10*sizeof(float));
+		
+		for(int i=0; i<dim*dim; i++)
+			*(red+i)=1;
+			//*(red+i)=(rand()%2)*2-1;
+		m=dim*dim;
+		
+		for(B_T=-3.0; B_T<=3.0; B_T+=0.5){
+			for(float i=0.1; i<=6.1; i+=0.5){
+				J_T=1.0/i;
+				definir_valores_de_p(p,fabs(B_T),J_T);
+				m=termalizacion_antiferro(red,p,dim,B_T,J_T,file,m,100);
+			}
+		}
+		
+		//printf("%i\n",m);
+		
+		fclose(file);
+		free(red);
+		free(p);
+	}
+	
+	if(item==6){
+		srand(time(NULL));
+		int dim=32,m;
+		float J_T,B_T;
+		char filename[64];
+		int *red;
+		float *p;
+		red = (int*)malloc(dim*dim*sizeof(int));
+		p = (float*)malloc(10*sizeof(float));
+		
+		for(int i=0; i<dim*dim; i++)
+			*(red+i)=1;
+			//*(red+i)=(rand()%2)*2-1;
+		m=dim*dim;
+		
+		for(B_T=-9.0; B_T<=-1.0; B_T=B_T/3.0){
+			FILE *file;
+			sprintf(filename,"ejercicio_2_d_B_%.2f.txt", B_T);
+			file=fopen(filename,"w");
+		
+			for(float i=0.1; i<=6.0; i+=0.1){
+				J_T=1.0/i;
+				m=medir_d(red,p,dim,B_T,J_T,file,m,1000);
+			}
+			
+			fclose(file);
+		}
+		
+		B_T=0.0;
+		FILE *file;
+		sprintf(filename,"ejercicio_2_d_B_%.2f.txt", B_T);
+		file=fopen(filename,"w");
+	
+		for(float i=0.1; i<=6.0; i+=0.1){
+			J_T=1.0/i;
+			m=medir_d(red,p,dim,B_T,J_T,file,m,1000);
+		}
+		
+		fclose(file);
+		
+		for(B_T=9.0; B_T>=1.0; B_T=B_T/3.0){
+			FILE *file;
+			sprintf(filename,"ejercicio_2_d_B_%.2f.txt", B_T);
+			file=fopen(filename,"w");
+		
+			for(float i=0.1; i<=6.0; i+=0.1){
+				J_T=1.0/i;
+				m=medir_d(red,p,dim,B_T,J_T,file,m,1000);
+			}
+			
+			fclose(file);
+		}
+		
+				
+		free(red);
+		free(p);
+	}
+	
+	if(item==7){
+		srand(time(NULL));
+		int dim=32,m;
+		float J_T,B_T;
+		char filename[64];
+		int *red;
+		float *p;
+		red = (int*)malloc(dim*dim*sizeof(int));
+		p = (float*)malloc(18*sizeof(float));
+		
+		for(int i=0; i<dim*dim; i++)
+			*(red+i)=1;
+			//*(red+i)=(rand()%2)*2-1;
+		m=dim*dim;
+		
+		for(B_T=1.0; B_T>=-1.0; B_T-=0.5){
+			FILE *file;
+			sprintf(filename,"ejercicio_2_e_B_%.2f.txt", B_T);
+			file=fopen(filename,"w");
+		
+			for(float i=0.1; i<10.0; i+=0.1){
+				J_T=1.0/i;
+				m=medir_e(red,p,dim,B_T,J_T,file,m,1000);
+			}
+			for(int i=10; i<=20; i++){
+				J_T=1.0/i;
+				m=medir_e(red,p,dim,B_T,J_T,file,m,1000);
+			}
+			
+			fclose(file);
+		}
+	
+	
+		free(red);
+		free(p);
+	}
 	
 	if(item==100){
-		FILE *file;
+		/*FILE *file;
 		file=fopen("Hello World","w");
 		for(float i=2.0; i>0.01; i=i/2.0)
 			print_file(file);
 		fclose(file);
-	
+		*/
+		float B=-97;
+		int b;
+		int s=-1;
+		int s_u=1;
+		int s_d=1;
+		int s_l=1;
+		int s_r=1;
+		
+		if(B)
+			b=s*(s_u+s_d+s_l+s_r)+4+(B*s*1.0/fabs(B)+1)/2;
+		else
+			b=s*(s_u+s_d+s_l+s_r)+4;
+			
+		printf("%d\n",b);
 	
 	}
 }
@@ -330,4 +481,197 @@ int variar_dimension(int dim){
 	free(red);
 	
 	return 0;
+}
+
+int flippear_spin_antiferro(int *red, int dim, int a, float B){
+	
+	int s_u,s_d,s_l,s_r,s=-*(red+a);
+	int b;
+	int i=a/dim;
+	int j=a%dim;
+
+	s_d=*(red+((i+1+dim)%dim)*dim+j);
+	s_u=*(red+((i-1+dim)%dim)*dim+j);
+	s_r=*(red+i*dim+(j+1+dim)%dim);
+	s_l=*(red+i*dim+(j-1+dim)%dim);
+	
+	if(B)
+		b=s*(s_u+s_d+s_l+s_r)+4+(B/fabs(B)*s+1)/2;
+	else
+		b=s*(s_u+s_d+s_l+s_r)+4;
+	
+	return b;
+}
+
+int definir_valores_de_p(float *p, float B, float J){
+	
+	*p=powl(E,-(-8*J+2*B));
+	*(p+1)=powl(E,-(-8*J-2*B));
+	*(p+2)=powl(E,-(-4*J+2*B));
+	*(p+3)=powl(E,-(-4*J-2*B));
+	*(p+4)=powl(E,-(2*B));
+	*(p+5)=powl(E,-(-2*B));
+	*(p+6)=powl(E,-(4*J+2*B));
+	*(p+7)=powl(E,-(4*J-2*B));
+	*(p+8)=powl(E,-(8*J+2*B));
+	*(p+9)=powl(E,-(8*J-2*B));
+	
+	return 0;
+}
+
+float termalizacion_antiferro(int *red, float *p, int dim, float B_T, float J_T, FILE *file, float m, int l){
+	
+	int s;
+	int a;
+	
+	fprintf(file,"%.3f\t",B_T);
+	fprintf(file,"%.3f\t",J_T);
+	
+	for(int i=0; i<l*dim*dim; i++){
+		s=rand()%(dim*dim);	
+		a=flippear_spin_antiferro(red,dim,s,B_T);
+		
+		if(rand()*1.0/M<*(p+a)){
+			*(red+s)=-*(red+s);
+			m+=*(red+s)*2;
+			}
+		
+		fprintf(file,"%.4f\t", m*1.0/(dim*dim));			
+	}
+
+	fprintf(file,"\n");
+	
+	return m;
+}
+
+float medir_d(int *red, float *p, int dim, float B_T, float J_T, FILE *file, float m, int l){
+
+	int s;
+	int a;
+	
+	definir_valores_de_p(p,fabs(B_T),J_T);
+	
+	fprintf(file,"%.3f\t",B_T);
+	fprintf(file,"%.3f\t",J_T);
+	
+	for(int i=0; i<7000; i++){
+		
+		s=rand()%(dim*dim);	
+		a=flippear_spin_antiferro(red,dim,s,B_T);
+		
+		if(rand()*1.0/M<*(p+a)){
+			*(red+s)=-*(red+s);
+			m+=*(red+s)*2;
+		}
+	
+	}
+	
+	for(int j=0; j<l; j++){
+		
+		fprintf(file,"%.4f\t", m*1.0/(dim*dim));
+		
+		for(int i=0; i<dim*dim; i++){
+			s=rand()%(dim*dim);	
+			a=flippear_spin_antiferro(red,dim,s,B_T);
+			
+			if(rand()*1.0/M<*(p+a)){
+				*(red+s)=-*(red+s);
+				m+=*(red+s)*2;
+			}
+						
+		}
+	}
+	fprintf(file,"\n");	
+
+	return m;
+}
+
+int flippear_spin_frustacion(int *red, int dim, int a, float B){
+	
+	int s_u,s_d,s_l,s_r,s_ul,s_ur,s_dl,s_dr,s=-*(red+a);
+	int b;
+	int i=a/dim;
+	int j=a%dim;
+
+	s_d=*(red+((i+1+dim)%dim)*dim+j);
+	s_u=*(red+((i-1+dim)%dim)*dim+j);
+	s_r=*(red+i*dim+(j+1+dim)%dim);
+	s_l=*(red+i*dim+(j-1+dim)%dim);
+	s_ul=*(red+((i-1+dim)%dim)*dim+(j-1+dim)%dim);
+	s_ur=*(red+((i-1+dim)%dim)*dim+(j+1+dim)%dim);
+	s_dl=*(red+((i+1+dim)%dim)*dim+(j-1+dim)%dim);
+	s_dr=*(red+((i+1+dim)%dim)*dim+(j+1+dim)%dim);
+	
+	if(B)
+		b=s*(s_u+s_d+s_l+s_r-s_ul-s_ur-s_dl-s_dr)+8+(B/fabs(B)*s+1)/2;
+	else
+		b=s*(s_u+s_d+s_l+s_r-s_ul-s_ur-s_dl-s_dr)+8;
+	
+	return b;
+}
+
+int definir_valores_de_p_2(float *p, float B, float J){
+	
+	*p=powl(E,-(-16*J+2*B));
+	*(p+1)=powl(E,-(-16*J-2*B));
+	*(p+2)=powl(E,-(-12*J+2*B));
+	*(p+3)=powl(E,-(-12*J-2*B));
+	*(p+4)=powl(E,-(-8*J+2*B));
+	*(p+5)=powl(E,-(-8*J-2*B));
+	*(p+6)=powl(E,-(-4*J+2*B));
+	*(p+7)=powl(E,-(-4*J-2*B));
+	*(p+8)=powl(E,-(2*B));
+	*(p+9)=powl(E,-(-2*B));
+	*(p+10)=powl(E,-(4*J+2*B));
+	*(p+11)=powl(E,-(4*J-2*B));
+	*(p+12)=powl(E,-(8*J+2*B));
+	*(p+13)=powl(E,-(8*J-2*B));
+	*(p+14)=powl(E,-(12*J+2*B));
+	*(p+15)=powl(E,-(12*J-2*B));
+	*(p+16)=powl(E,-(16*J+2*B));
+	*(p+17)=powl(E,-(16*J-2*B));
+	
+	return 0;
+}
+
+float medir_e(int *red, float *p, int dim, float B_T, float J_T, FILE *file, float m, int l){
+
+	int s;
+	int a;
+	
+	definir_valores_de_p_2(p,fabs(B_T),J_T);
+	
+	fprintf(file,"%.3f\t",B_T);
+	fprintf(file,"%.3f\t",J_T);
+	
+	for(int i=0; i<7000; i++){
+		
+		s=rand()%(dim*dim);	
+		a=flippear_spin_frustacion(red,dim,s,B_T);
+		
+		if(rand()*1.0/M<*(p+a)){
+			*(red+s)=-*(red+s);
+			m+=*(red+s)*2;
+		}
+	
+	}
+	
+	for(int j=0; j<l; j++){
+		
+		fprintf(file,"%.4f\t", m*1.0/(dim*dim));
+		
+		for(int i=0; i<dim*dim; i++){
+			s=rand()%(dim*dim);	
+			a=flippear_spin_frustacion(red,dim,s,B_T);
+			
+			if(rand()*1.0/M<*(p+a)){
+				*(red+s)=-*(red+s);
+				m+=*(red+s)*2;
+			}
+						
+		}
+	}
+	fprintf(file,"\n");	
+
+	return m;
 }
